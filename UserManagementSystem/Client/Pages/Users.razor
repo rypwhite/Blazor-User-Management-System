@@ -1,4 +1,6 @@
 @page "/users"
+@using System.Text.Json;
+@inject HttpClient Http
 
 <PageTitle>Users</PageTitle>
 
@@ -39,3 +41,11 @@
         </tbody>
   </table>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetStringAsync("https://api.ipify.org");
+        Console.WriteLine(response);
+    }
+}
