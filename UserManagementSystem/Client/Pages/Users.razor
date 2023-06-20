@@ -1,6 +1,10 @@
 @page "/users"
 @using System.Text.Json;
-@inject HttpClient Http
+@using System.Net.Http;
+@using Microsoft.Extensions.Http;
+
+@inject HttpClient Http;
+@inject IHttpClientFactory ClientFactory;
 
 <PageTitle>Users</PageTitle>
 
@@ -45,7 +49,14 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetStringAsync("https://api.ipify.org");
-        Console.WriteLine(response);
+        // Inside your server-side Razor Page or API controller action
+        using (var httpClient = new HttpClient())
+        {
+            var apiUrl = "http://localhost/api/get_users.php";
+            //var apiUrl = "http://localhost/api/get_users.php";
+            var response = await httpClient.GetAsync(apiUrl);
+            var responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
+        }
     }
 }
