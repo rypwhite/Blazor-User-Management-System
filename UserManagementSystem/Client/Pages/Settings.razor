@@ -55,29 +55,29 @@
             </div>
             <div class="form-group mt-2">
                 <label for="">First Name</label>
-                <input type="text" class="form-control" name="FirstName" value="@FirstName" required>
+                <input type="text" class="form-control" name="FirstName" @bind="EditFirstName" @oninput="e => EditFirstName = e.Value.ToString()" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Last Name</label>
-                <input type="text" class="form-control" name="LastName" value="@LastName" required>
+                <input type="text" class="form-control" name="LastName" @bind="EditLastName" @oninput="e => EditLastName = e.Value.ToString()" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Age</label>
-                <input type="number" class="form-control" name="Age" value="@Age" required>
+                <input type="number" class="form-control" name="Age" @bind="EditAge" @oninput="e => EditAge = Convert.ToInt32(e.Value)" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Address</label>
-                <input type="text" class="form-control" name="Address" value="@Address" required>
+                <input type="text" class="form-control" name="Address" @bind="EditAddress" @oninput="e => EditAddress = e.Value.ToString()" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Email</label>
-                <input type="email" class="form-control" name="Email" value="@Email" required>
+                <input type="email" class="form-control" name="Email" @bind="EditEmail" @oninput="e => EditEmail = e.Value.ToString()" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Phone</label>
-                <input type="number" class="form-control" name="Phone" value="@Phone" required>
+                <input type="number" class="form-control" name="Phone" @bind="EditPhone" @oninput="e => EditPhone = e.Value.ToString()" required>
             </div>
-            <button type="submit" class="btn btn-success w-100 mt-3">Change User</button>
+            <button type="submit" class="btn btn-success w-100 mt-3" @onclick="edit_user">Change User</button>
         </form>
     </div>
 </div>
@@ -121,24 +121,57 @@
         }
     }
 
-    private int SelectedUser;
-    private string FirstName;
-    private string LastName;
-    private int Age;
-    private string Address;
-    private string Phone;
-    private string Email;
+    private int EditSelectedUser;
+    private string EditFirstName;
+    private string EditLastName;
+    private int EditAge;
+    private string EditAddress;
+    private string EditPhone;
+    private string EditEmail;
+
+    private async void edit_user()
+    {
+        if (EditSelectedUser == 0 || IsNullOrEmpty(EditFirstName) || IsNullOrEmpty(EditLastName) || EditAge == 0 || IsNullOrEmpty(EditAddress) || IsNullOrEmpty(EditEmail) || IsNullOrEmpty(EditPhone)) {
+            Console.WriteLine("Submitted form has empty fields");
+            return;
+        }
+
+        EditAddress = EditAddress.Replace(" ", string.Empty);
+
+        using (var httpClient = new HttpClient())
+        {
+            //if (!isset($_GET["FirstName"]) || isset($_GET["LastName"]) || isset($_GET["Age"]) ||isset($_GET["Address"]) ||isset($_GET["Email"]) ||isset($_GET["Phone"])) {
+
+            var edit_user_url = "http://localhost/api/update_user.php?UID="+EditSelectedUser+"&FirstName="+EditFirstName+"&LastName="+EditLastName+"&Age="+EditAge+"&Address="+EditAddress+"&Email="+EditEmail+"&Phone="+EditPhone;
+            
+            Console.WriteLine(edit_user_url);
+
+            var response = await httpClient.GetAsync(edit_user_url);
+
+            var response_body = await response.Content.ReadAsStringAsync();
+            dynamic response_object = JsonConvert.DeserializeObject<dynamic>(response_body);
+
+            int status_code = (int)response.StatusCode;
+                
+            if (status_code != 200) {
+                Console.WriteLine(response_object["status"] + " : " + response_object["message"]);
+                return;
+            }
+
+            Console.WriteLine(response_object);
+        }
+    }
 
     private void update_form_details(ChangeEventArgs e)
     {
-        int.TryParse(e.Value.ToString(), out SelectedUser);
-        var selectedUser = user_list.FirstOrDefault(user => user.UID == SelectedUser);
-        FirstName = selectedUser?.FirstName;
-        LastName = selectedUser?.LastName;
-        Age = (int)selectedUser.Age;
-        Address = selectedUser?.Address;
-        Phone = selectedUser?.Phone;
-        Email = selectedUser?.Email;
+        int.TryParse(e.Value.ToString(), out EditSelectedUser);
+        var selectedUser = user_list.FirstOrDefault(user => user.UID == EditSelectedUser);
+        EditFirstName = selectedUser?.FirstName;
+        EditLastName = selectedUser?.LastName;
+        EditAge = (int)selectedUser.Age;
+        EditAddress = selectedUser?.Address;
+        EditPhone = selectedUser?.Phone;
+        EditEmail = selectedUser?.Email;
     }
 
     private string AddFirstName;
@@ -154,6 +187,7 @@
             Console.WriteLine("Submitted form has empty fields");
             return;
         }
+
         using (var httpClient = new HttpClient())
         {
             //if (!isset($_GET["FirstName"]) || isset($_GET["LastName"]) || isset($_GET["Age"]) ||isset($_GET["Address"]) ||isset($_GET["Email"]) ||isset($_GET["Phone"])) {
