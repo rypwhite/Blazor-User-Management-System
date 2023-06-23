@@ -1,7 +1,9 @@
 @page "/settings"
 @using System.Net.Http;
 @using Newtonsoft.Json;
+@using static System.String;
 
+@inject HttpClient Http;
 @inject IHttpClientFactory ClientFactory;
 
 <PageTitle>Settings</PageTitle>
@@ -11,14 +13,14 @@
 <div class="row">
     <div class="col-12 col-md-6 col-lg-4 mt-3">
         <h2>Add User</h2>
-        <form>
+        <form onsubmit="event.preventDefault()">     
             <div class="form-group mt-2">
                 <label for="">First Name</label>
-                <input type="text" class="form-control" name="FirstName" placeholder="FirstName" required>
+                <input type="text" class="form-control" name="FirstName" placeholder="FirstName" @bind="AddFirstName" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Last Name</label>
-                <input type="text" class="form-control" name="LastName" placeholder="LastName" required>
+                <input type="text" class="form-control" name="LastName" placeholder="LastName" @bind="AddLastName" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Age</label>
@@ -36,12 +38,12 @@
                 <label for="">Phone</label>
                 <input type="number" class="form-control" name="Phone" placeholder="Phone" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100 mt-3">Add User</button>
+            <button type="submit" class="btn btn-primary w-100 mt-3" @onclick="add_user">Add User</button>
         </form>
     </div>
     <div class="col-12 col-md-6 col-lg-4 mt-3">
         <h2>Edit User</h2>
-        <form>
+        <form onsubmit="event.preventDefault()">     
             <div class="form-group">
                 <label for="">Select a user</label>
                 <select class="form-select" name="UID" @onchange="update_form_details">
@@ -137,5 +139,37 @@
         Address = selectedUser?.Address;
         Phone = selectedUser?.Phone;
         Email = selectedUser?.Email;
+    }
+
+    private string AddFirstName;
+    private string AddLastName;
+    private string AddAge;
+    private string AddAddress;
+    private string AddEmail;
+    private string AddPhone;
+
+    private async void add_user()
+    {
+        if (IsNullOrEmpty(AddFirstName) || IsNullOrEmpty(AddLastName) || IsNullOrEmpty(AddAge) || IsNullOrEmpty(AddAddress) || IsNullOrEmpty(AddEmail) || IsNullOrEmpty(AddPhone)) {
+            Console.WriteLine("Submitted form has empty fields");
+            return;
+        }
+        using (var httpClient = new HttpClient())
+        {
+            var users_url = "http://localhost/api/add_user.php?FirstName="+AddFirstName+"&LastName="+AddLastName+"&Age="+AddAge+"&Address="+AddAddress+"&Email="+AddEmail+"&Phone="+AddPhone;
+            var response = await httpClient.GetAsync(users_url);
+
+            var response_body = await response.Content.ReadAsStringAsync();
+            dynamic response_object = JsonConvert.DeserializeObject<dynamic>(response_body);
+
+            int status_code = (int)response.StatusCode;
+                
+            if (status_code != 200) {
+                Console.WriteLine(response_object["status"] + " : " + response_object["message"]);
+                return;
+            }
+
+            Console.WriteLine(response_object);
+        }
     }
 }
