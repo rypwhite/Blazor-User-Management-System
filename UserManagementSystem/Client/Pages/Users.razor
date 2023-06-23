@@ -1,6 +1,7 @@
 @page "/users"
 @using System.Text.Json;
 @using System.Net.Http;
+@using System.Text;
 @using Microsoft.Extensions.Http;
 @using Newtonsoft.Json;
 @using Newtonsoft.Json.Linq;
@@ -90,9 +91,29 @@
         }
     }
 
-    private void delete_user(int UID)
+    private void edit_user(int UID)
+    {
+        Console.WriteLine("You are now editing user " + UID.ToString());
+        return;
+    }
+
+    private async Task delete_user(int UID)
     {
         Console.WriteLine("You are now deleting user " + UID.ToString());
-        return;
+
+        using (var httpClient = new HttpClient())
+        {
+            var delete_url = "http://localhost/api/delete_user.php?UID="+3;
+
+            //var jsonData = "{\"UID\":"+UID+"}";
+
+            //var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.GetAsync(delete_url);
+
+            var response_body = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine(response_body);
+        }
     }
 }
