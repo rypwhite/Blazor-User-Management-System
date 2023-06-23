@@ -31,7 +31,7 @@
         <tbody>
            @foreach (var user in user_list)
             {
-                <tr>
+                <tr id="@user.UID">
                     <td>@user.UID</td>
                     <td>@user.FirstName</td>
                     <td>@user.LastName</td>
@@ -103,17 +103,19 @@
 
         using (var httpClient = new HttpClient())
         {
-            var delete_url = "http://localhost/api/delete_user.php?UID="+3;
-
-            //var jsonData = "{\"UID\":"+UID+"}";
-
-            //var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var delete_url = "http://localhost/api/delete_user.php?UID="+UID;
 
             var response = await httpClient.GetAsync(delete_url);
 
             var response_body = await response.Content.ReadAsStringAsync();
 
             Console.WriteLine(response_body);
+
+            var deleted_user = user_list.FirstOrDefault(u => u.UID == UID);
+            if (deleted_user != null)
+            {
+                user_list.Remove(deleted_user);
+            }
         }
     }
 }
