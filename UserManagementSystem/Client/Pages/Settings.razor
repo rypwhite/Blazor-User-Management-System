@@ -24,19 +24,19 @@
             </div>
             <div class="form-group mt-2">
                 <label for="">Age</label>
-                <input type="number" class="form-control" name="Age" placeholder="Age" required>
+                <input type="number" class="form-control" name="Age" placeholder="Age" @bind="AddAge" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Address</label>
-                <input type="text" class="form-control" name="Address" placeholder="Address" required>
+                <input type="text" class="form-control" name="Address" placeholder="Address" @bind="AddAddress" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Email</label>
-                <input type="email" class="form-control" name="Email" placeholder="Email" required>
+                <input type="email" class="form-control" name="Email" placeholder="Email" @bind="AddEmail" required>
             </div>
             <div class="form-group mt-2">
                 <label for="">Phone</label>
-                <input type="number" class="form-control" name="Phone" placeholder="Phone" required>
+                <input type="number" class="form-control" name="Phone" placeholder="Phone" @bind="AddPhone" required>
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-3" @onclick="add_user">Add User</button>
         </form>
@@ -156,8 +156,14 @@
         }
         using (var httpClient = new HttpClient())
         {
-            var users_url = "http://localhost/api/add_user.php?FirstName="+AddFirstName+"&LastName="+AddLastName+"&Age="+AddAge+"&Address="+AddAddress+"&Email="+AddEmail+"&Phone="+AddPhone;
-            var response = await httpClient.GetAsync(users_url);
+            //if (!isset($_GET["FirstName"]) || isset($_GET["LastName"]) || isset($_GET["Age"]) ||isset($_GET["Address"]) ||isset($_GET["Email"]) ||isset($_GET["Phone"])) {
+
+            var add_user_url = "http://localhost/api/add_user.php?FirstName="+AddFirstName+"&LastName="+AddLastName+"&Age="+AddAge+"&Address="+AddAddress+"&Email="+AddEmail+"&Phone="+AddPhone;
+            
+            Console.WriteLine(add_user_url);
+            //return;
+
+            var response = await httpClient.GetAsync(add_user_url);
 
             var response_body = await response.Content.ReadAsStringAsync();
             dynamic response_object = JsonConvert.DeserializeObject<dynamic>(response_body);
