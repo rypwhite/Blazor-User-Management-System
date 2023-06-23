@@ -15,7 +15,7 @@ try {
 }
 
 if (!$users) {
-    http_response_code(200);
+    http_response_code(404);
     $response = array("status" => "error", "message" => "no users found");
     die(json_encode($response));
 }
